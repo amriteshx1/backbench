@@ -1,0 +1,28 @@
+{
+  "name": "@backbench/api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/server.js",
+  "scripts": {
+    "dev": "tsx watch --env-file=../../.env src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo \"No lint yet\"",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "@backbench/config": "^1.0.0",
+    "@backbench/shared": "^1.0.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.20.0",
+    "tsx": "^4.22.5",
+    "typescript": "^5.9.3"
+  }
+}
