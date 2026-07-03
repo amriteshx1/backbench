@@ -11,8 +11,8 @@
       "test": "echo \"no tests yet\""
       },
     "dependencies": {
-      "@backbench/config": "workspace:*",
-      "@backbench/shared": "workspace:*",
+      "@backbench/config": "*",
+      "@backbench/shared": "*",
       "cors": "^2.8.5",
       "express": "^4.21.2"
     },

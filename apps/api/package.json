@@ -13,8 +13,8 @@
     "test": "echo \"No tests yet\""
   },
   "dependencies": {
-    "@backbench/config": "^1.0.0",
-    "@backbench/shared": "^1.0.0",
+    "@backbench/config": "*",
+    "@backbench/shared": "*",
     "cors": "^2.8.6",
     "express": "^5.2.1"
   },
