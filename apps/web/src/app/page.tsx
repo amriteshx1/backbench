@@ -1,58 +1,51 @@
 "use client";
-import { useEffect, useState } from "react";
 
-interface HealthData {
-  service: string;
-  status: string;
-  timestamp: string;
-}
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getToken, clearToken } from "@/lib/auth";
 
-export default function Home() {
-  const [health, setHealth] = useState<HealthData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-    
-    fetch(`${apiUrl}/health`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to reach API server");
-        return res.json();
-      })
-      .then((data) => {
-        setHealth(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
+export default function HomePage() {
+  const token = getToken();
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-slate-900 text-white">
-      <div className="text-center space-y-4">
-        <h1 className="text-6xl font-bold tracking-tight text-blue-400">Backbench</h1>
-        <p className="text-xl text-slate-400">Practice backend engineering.</p>
-        
-        <div className="mt-8 p-4 rounded-lg border border-slate-700 bg-slate-800/50 inline-block min-w-[300px]">
-          <p className="text-sm font-semibold uppercase tracking-wider text-slate-500">API Gateway Status</p>
-          
-          {loading && <p className="text-yellow-400 mt-2 font-mono animate-pulse">🔄 Fetching system status...</p>}
-          
-          {error && <p className="text-red-400 mt-2 font-mono">❌ API: Unhealthy ({error})</p>}
-          
-          {health && (
-            <div className="mt-2 text-left space-y-1 font-mono text-sm">
-              <p className="text-green-400 font-bold">✅ API: Healthy</p>
-              <p className="text-slate-400 text-xs">Service: {health.service}</p>
-              <p className="text-slate-400 text-xs">Status: {health.status}</p>
-              <p className="text-slate-500 text-[10px]">{health.timestamp}</p>
+    <main className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center p-6">
+      <Card className="w-full max-w-xl">
+        <CardHeader>
+          <CardTitle className="text-3xl">Backbench</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-muted-foreground">
+            Practice real backend engineering through API, DB, queue, and worker challenges.
+          </p>
+
+          {!token ? (
+            <div className="flex gap-3">
+              <Button asChild>
+                <Link href="/signup">Create account</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              <Button asChild>
+                <Link href="/profile">Go to profile</Link>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  clearToken();
+                  window.location.reload();
+                }}
+              >
+                Logout locally
+              </Button>
             </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }
