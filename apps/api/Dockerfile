@@ -23,6 +23,7 @@ COPY packages/config ./packages/config
 COPY packages/shared ./packages/shared
 COPY packages/db ./packages/db
 COPY packages/challenge-registry ./packages/challenge-registry
+COPY challenges ./challenges
 COPY apps/api ./apps/api
 
 # Build shared layers first, then the API
