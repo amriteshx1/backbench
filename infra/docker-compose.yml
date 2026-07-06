@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   postgres:
@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: backbench
       POSTGRES_DB: backbench
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -27,7 +27,7 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - ../.env
+      - ../.env.docker
     depends_on:
       - postgres
       - redis
@@ -40,7 +40,7 @@ services:
     ports:
       - "4001:4001"
     env_file:
-      - ../.env
+      - ../.env.docker
     depends_on:
       - postgres
       - redis

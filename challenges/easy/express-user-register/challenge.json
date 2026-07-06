@@ -1,0 +1,13 @@
+{
+  "slug": "express-user-register",
+  "title": "Build User Registration Endpoint",
+  "difficulty": "easy",
+  "category": "express-api",
+  "description": "Implement POST /users/register with basic validation and in-memory persistence.",
+  "tags": ["express", "http", "validation"],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 1
+}

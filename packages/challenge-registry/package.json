@@ -1,14 +1,17 @@
 {
-    "name": "@backbench/challenge-registry",
-    "private": true,
-    "version": "1.0.0",
-    "type": "module",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
-    "scripts": {
-      "build": "tsc -p tsconfig.json",
-      "typecheck": "tsc -p tsconfig.json --noEmit",
-      "lint": "echo \"No lint yet\"",
-      "test": "echo \"No tests yet\""
-    }
+  "name": "@backbench/challenge-registry",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo \"No lint yet\"",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
   }
+}

@@ -13,6 +13,7 @@ COPY apps/web/package*.json ./apps/web/
 COPY packages/config/package*.json ./packages/config/
 COPY packages/shared/package*.json ./packages/shared/
 COPY packages/db/package*.json ./packages/db/
+COPY packages/challenge-registry/package*.json ./packages/challenge-registry/
 
 # Install dependencies at root
 RUN npm ci
@@ -21,12 +22,14 @@ RUN npm ci
 COPY packages/config ./packages/config
 COPY packages/shared ./packages/shared
 COPY packages/db ./packages/db
+COPY packages/challenge-registry ./packages/challenge-registry
 COPY apps/api ./apps/api
 
 # Build shared layers first, then the API
 RUN npm run build -w @backbench/config || true
 RUN npm run build -w @backbench/shared || true
 RUN npm run build -w @backbench/db || true
+RUN npm run build -w @backbench/challenge-registry || true
 RUN npm run build -w @backbench/api
 
 EXPOSE 4000

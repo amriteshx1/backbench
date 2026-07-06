@@ -34,3 +34,55 @@ model Profile {
 
   @@map("profiles")
 }
+
+enum ChallengeDifficulty {
+  easy
+  medium
+  hard
+}
+
+enum ChallengeStatus {
+  draft
+  published
+  archived
+}
+
+model Challenge {
+  id            String              @id @default(cuid())
+  slug          String              @unique
+  title         String
+  difficulty    ChallengeDifficulty
+  category      String
+  description   String
+  status        ChallengeStatus     @default(published)
+  orderIndex    Int                 @default(0) @map("order_index")
+  templateKey   String              @map("template_key")
+  testKey       String              @map("test_key")
+  maxScore      Int                 @default(100) @map("max_score")
+  timeLimitMs   Int                 @default(2000) @map("time_limit_ms")
+  memoryLimitMb Int                 @default(256) @map("memory_limit_mb")
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @updatedAt @map("updated_at")
+
+  tags          ChallengeTagLink[]
+
+  @@map("challenges")
+}
+
+model ChallengeTag {
+  id         String             @id @default(cuid())
+  name       String             @unique
+  links      ChallengeTagLink[]
+
+  @@map("challenge_tags")
+}
+
+model ChallengeTagLink {
+  challengeId String    @map("challenge_id")
+  tagId       String    @map("tag_id")
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  tag         ChallengeTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([challengeId, tagId])
+  @@map("challenge_tag_links")
+}

@@ -11,9 +11,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "echo \"No lint yet\"",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "seed:challenges": "tsx --env-file=../../.env src/scripts/seed-challenges.ts"
   },
   "dependencies": {
+    "@backbench/challenge-registry": "*",
     "@backbench/config": "*",
     "@backbench/db": "*",
     "@backbench/shared": "*",
