@@ -9,8 +9,8 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspaces",
-    "build": "npm run build --workspaces",
-    "typecheck": "npm run typecheck --workspaces",
+    "build": "npm run build -w @backbench/shared && npm run build -w @backbench/config && npm run build -w @backbench/db && npm run build -w @backbench/api && npm run build -w @backbench/worker && npm run build -w @backbench/challenge-registry && npm run build -w @backbench/web",
+    "typecheck": "npm run typecheck -w @backbench/shared && npm run typecheck -w @backbench/config && npm run typecheck -w @backbench/db && npm run typecheck -w @backbench/api && npm run typecheck -w @backbench/worker && npm run typecheck -w @backbench/challenge-registry && npm run typecheck -w @backbench/web",
     "lint": "npm run lint --workspaces",
     "test": "npm run test --workspaces",
     "db:generate": "npm run prisma:generate -w packages/db",
