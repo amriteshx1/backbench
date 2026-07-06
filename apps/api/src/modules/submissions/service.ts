@@ -10,6 +10,7 @@ import {
   resolveChallengesRoot,
   resolvePathWithinChallenges,
 } from "../../lib/challenges-root.js";
+import { queueProducer } from "./queue-producer.js";
 import { submissionsRepository } from "./repository.js";
 
 const DISALLOWED_SEGMENTS = ["..", ""];
@@ -58,12 +59,31 @@ export const submissionsService = {
       files: input.files,
     });
 
+    let resultingStatus = submission.status;
+
+    try {
+      await queueProducer.enqueueSubmissionEvaluation({
+        submissionId: submission.id,
+        userId: submission.userId,
+        challengeId: submission.challengeId,
+        attemptNumber: 1,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to enqueue submission";
+      await submissionsRepository.markSubmissionErrorForQueueFailure(
+        submission.id,
+        message,
+      );
+      resultingStatus = "ERROR";
+    }
+
     return {
       submission: {
         id: submission.id,
         challengeId: submission.challengeId,
         challengeSlug: submission.challenge.slug,
-        status: submission.status,
+        status: resultingStatus,
         submittedAt: submission.submittedAt.toISOString(),
       },
     };

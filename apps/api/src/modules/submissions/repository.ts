@@ -38,6 +38,18 @@ export const submissionsRepository = {
     });
   },
 
+  markSubmissionErrorForQueueFailure(submissionId: string, errorMessage: string) {
+    return prisma.submission.update({
+      where: { id: submissionId },
+      data: {
+        status: SubmissionStatus.ERROR,
+        errorType: "QUEUE_ENQUEUE_FAILED",
+        errorMessage,
+        completedAt: new Date(),
+      },
+    });
+  },
+
   findSubmissionById(submissionId: string) {
     return prisma.submission.findUnique({
       where: { id: submissionId },
