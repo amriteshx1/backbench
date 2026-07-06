@@ -17,6 +17,7 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   profile      Profile?
+  submissions  Submission[]
 
   @@map("users")
 }
@@ -65,6 +66,7 @@ model Challenge {
   updatedAt     DateTime            @updatedAt @map("updated_at")
 
   tags          ChallengeTagLink[]
+  submissions   Submission[]
 
   @@map("challenges")
 }
@@ -85,4 +87,63 @@ model ChallengeTagLink {
 
   @@id([challengeId, tagId])
   @@map("challenge_tag_links")
+}
+
+enum SubmissionStatus {
+  QUEUED
+  RUNNING
+  PASSED
+  FAILED
+  ERROR
+  TIMEOUT
+  CANCELLED
+}
+
+model Submission {
+  id           String           @id @default(cuid())
+  userId       String           @map("user_id")
+  challengeId  String           @map("challenge_id")
+  status       SubmissionStatus
+  score        Int?
+  passedTests  Int?             @map("passed_tests")
+  totalTests   Int?             @map("total_tests")
+  errorType    String?          @map("error_type")
+  errorMessage String?          @map("error_message")
+  submittedAt  DateTime         @default(now()) @map("submitted_at")
+  startedAt    DateTime?        @map("started_at")
+  completedAt  DateTime?        @map("completed_at")
+
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge    Challenge        @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  files        SubmissionFile[]
+  result       SubmissionResult?
+
+  @@index([userId, submittedAt])
+  @@index([challengeId, submittedAt])
+  @@map("submissions")
+}
+
+model SubmissionFile {
+  id           String      @id @default(cuid())
+  submissionId String      @map("submission_id")
+  path         String
+  content      String
+
+  submission   Submission  @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@map("submission_files")
+}
+
+model SubmissionResult {
+  submissionId    String      @id @map("submission_id")
+  stdout          String?
+  stderr          String?
+  testResultsJson Json?       @map("test_results_json")
+  durationMs      Int?        @map("duration_ms")
+  memoryMb        Int?        @map("memory_mb")
+
+  submission      Submission  @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("submission_results")
 }
