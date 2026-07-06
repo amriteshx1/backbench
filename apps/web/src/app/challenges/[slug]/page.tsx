@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 type ChallengeSummary = {
   id: string;
@@ -38,10 +40,43 @@ type ChallengeStarterResponse = {
   }>;
 };
 
+type CreateSubmissionResponse = {
+  submission: {
+    id: string;
+    challengeId: string;
+    challengeSlug: string;
+    status: "QUEUED" | "RUNNING" | "PASSED" | "FAILED" | "ERROR" | "TIMEOUT" | "CANCELLED";
+    submittedAt: string;
+  };
+};
+
+type SubmissionDetailResponse = {
+  submission: {
+    id: string;
+    status: "QUEUED" | "RUNNING" | "PASSED" | "FAILED" | "ERROR" | "TIMEOUT" | "CANCELLED";
+    submittedAt: string;
+    startedAt: string | null;
+    completedAt: string | null;
+    errorType: string | null;
+    errorMessage: string | null;
+    score: number | null;
+    passedTests: number | null;
+    totalTests: number | null;
+    files: Array<{
+      path: string;
+      content: string;
+    }>;
+  };
+};
+
 function difficultyVariant(difficulty: ChallengeSummary["difficulty"]) {
   if (difficulty === "easy") return "secondary";
   if (difficulty === "medium") return "default";
   return "destructive";
+}
+
+function getSubmissionStorageKey(slug: string): string {
+  return `latest-submission:${slug}`;
 }
 
 export default function ChallengeDetailPage() {
@@ -49,6 +84,9 @@ export default function ChallengeDetailPage() {
   const router = useRouter();
   const token = getToken();
   const slug = params.slug;
+  const [editableFiles, setEditableFiles] = useState<Array<{ path: string; content: string }>>([]);
+  const [selectedPath, setSelectedPath] = useState<string>("");
+  const [latestSubmissionId, setLatestSubmissionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) {
@@ -66,6 +104,52 @@ export default function ChallengeDetailPage() {
     queryKey: ["challenge-starter", slug],
     queryFn: () => apiRequest<ChallengeStarterResponse>(`/challenges/${slug}/starter`, { token }),
     enabled: Boolean(token && slug),
+  });
+
+  useEffect(() => {
+    if (!slug) return;
+    const fromStorage = window.localStorage.getItem(getSubmissionStorageKey(slug));
+    if (fromStorage) {
+      setLatestSubmissionId(fromStorage);
+    }
+  }, [slug]);
+
+  useEffect(() => {
+    if (!starterQuery.data?.files?.length) return;
+    setEditableFiles((current) => (current.length ? current : starterQuery.data.files));
+    setSelectedPath((current) => (current ? current : starterQuery.data.files[0]?.path ?? ""));
+  }, [starterQuery.data]);
+
+  const selectedFile = useMemo(
+    () => editableFiles.find((file) => file.path === selectedPath) ?? null,
+    [editableFiles, selectedPath],
+  );
+
+  const submitMutation = useMutation({
+    mutationFn: () =>
+      apiRequest<CreateSubmissionResponse>(`/challenges/${slug}/submissions`, {
+        method: "POST",
+        token,
+        body: { files: editableFiles },
+      }),
+    onSuccess: (data) => {
+      setLatestSubmissionId(data.submission.id);
+      window.localStorage.setItem(getSubmissionStorageKey(slug), data.submission.id);
+      toast.success(`Submission created: ${data.submission.id}`);
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Failed to create submission");
+    },
+  });
+
+  const submissionQuery = useQuery({
+    queryKey: ["submission", latestSubmissionId],
+    queryFn: () => apiRequest<SubmissionDetailResponse>(`/submissions/${latestSubmissionId}`, { token }),
+    enabled: Boolean(token && latestSubmissionId),
+    refetchInterval: (query) =>
+      query.state.data?.submission.status === "QUEUED" || query.state.data?.submission.status === "RUNNING"
+        ? 3000
+        : false,
   });
 
   if (!token) return null;
@@ -89,7 +173,7 @@ export default function ChallengeDetailPage() {
   }
 
   const { challenge } = detailQuery.data;
-  const starterFiles = starterQuery.data?.files ?? [];
+  const starterFiles = starterQuery.data?.files ?? editableFiles;
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-4 p-6">
@@ -138,19 +222,84 @@ export default function ChallengeDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Starter Files</CardTitle>
+          <CardTitle>Workspace</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {starterFiles.map((file) => (
-            <div key={file.path} className="rounded-md border">
-              <div className="border-b bg-muted px-3 py-2 text-xs font-semibold">
+          <div className="flex flex-wrap gap-2">
+            {starterFiles.map((file) => (
+              <Button
+                key={file.path}
+                variant={file.path === selectedPath ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedPath(file.path)}
+              >
                 {file.path}
-              </div>
-              <pre className="overflow-x-auto whitespace-pre-wrap p-3 text-xs">
-                {file.content}
-              </pre>
+              </Button>
+            ))}
+          </div>
+
+          {selectedFile ? (
+            <div className="space-y-2">
+              <div className="text-sm text-muted-foreground">Editing: {selectedFile.path}</div>
+              <Textarea
+                value={selectedFile.content}
+                onChange={(event) => {
+                  const nextContent = event.target.value;
+                  setEditableFiles((current) =>
+                    current.map((file) =>
+                      file.path === selectedFile.path ? { ...file, content: nextContent } : file,
+                    ),
+                  );
+                }}
+                className="min-h-[360px] font-mono text-xs"
+              />
             </div>
-          ))}
+          ) : (
+            <p className="text-sm text-muted-foreground">No starter files available.</p>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button onClick={() => submitMutation.mutate()} disabled={submitMutation.isPending || !editableFiles.length}>
+              {submitMutation.isPending ? "Submitting..." : "Submit solution"}
+            </Button>
+            {latestSubmissionId ? (
+              <span className="text-xs text-muted-foreground">Latest submission: {latestSubmissionId}</span>
+            ) : null}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Submission Status</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {!latestSubmissionId ? (
+            <p className="text-sm text-muted-foreground">
+              No submissions yet for this challenge in this browser session.
+            </p>
+          ) : submissionQuery.isLoading ? (
+            <p className="text-sm">Loading latest submission...</p>
+          ) : submissionQuery.isError ? (
+            <p className="text-sm text-destructive">Unable to load submission status.</p>
+          ) : submissionQuery.data ? (
+            <>
+              <div className="text-sm">
+                <strong>ID:</strong> {submissionQuery.data.submission.id}
+              </div>
+              <div className="text-sm">
+                <strong>Status:</strong> {submissionQuery.data.submission.status}
+              </div>
+              <div className="text-sm">
+                <strong>Submitted:</strong> {new Date(submissionQuery.data.submission.submittedAt).toLocaleString()}
+              </div>
+              {submissionQuery.data.submission.errorMessage ? (
+                <div className="text-sm text-destructive">
+                  <strong>Error:</strong> {submissionQuery.data.submission.errorMessage}
+                </div>
+              ) : null}
+            </>
+          ) : null}
         </CardContent>
       </Card>
     </main>
