@@ -1,8 +1,10 @@
 import { loadEnv } from "@backbench/config";
 import { startHealthServer } from "./health-server.js";
+import { startSubmissionWorker } from "./submission-worker.js";
 
-loadEnv();
+const env = loadEnv();
 
-const PORT = process.env.WORKER_HEALTH_PORT || 4001;
+const PORT = env.WORKER_HEALTH_PORT;
 
 startHealthServer(PORT);
+startSubmissionWorker();
