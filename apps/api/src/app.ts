@@ -4,6 +4,7 @@ import healthRoutes from "./routes/health.routes.js";
 import authRoutes from "./modules/auth/routes.js";
 import meRoutes from "./modules/users/routes.js";
 import challengeRoutes from "./modules/challenges/routes.js";
+import submissionRoutes from "./modules/submissions/routes.js";
 import { AppError } from "./lib/app-error.js";
 
 const app = express();
@@ -15,6 +16,7 @@ app.use("/health", healthRoutes);
 app.use("/auth", authRoutes);
 app.use("/me", meRoutes);
 app.use("/challenges", challengeRoutes);
+app.use("/", submissionRoutes);
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (err instanceof AppError) {
