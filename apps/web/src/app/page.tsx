@@ -31,7 +31,10 @@ export default function HomePage() {
           ) : (
             <div className="flex gap-3">
               <Button asChild>
-                <Link href="/profile">Go to profile</Link>
+                <Link href="/challenges">Go to challenges</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/profile">Profile</Link>
               </Button>
               <Button
                 variant="outline"

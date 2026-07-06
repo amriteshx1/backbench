@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
@@ -156,6 +157,9 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex gap-3">
+            <Button variant="outline" asChild>
+              <Link href="/challenges">Challenge catalog</Link>
+            </Button>
             <Button onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
               {updateMutation.isPending ? "Saving..." : "Save profile"}
             </Button>
