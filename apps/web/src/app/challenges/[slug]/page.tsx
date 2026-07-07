@@ -98,6 +98,15 @@ function difficultyVariant(difficulty: ChallengeSummary["difficulty"]) {
   return "destructive";
 }
 
+function submissionStatusVariant(
+  status: SubmissionDetailResponse["submission"]["status"],
+): "default" | "secondary" | "destructive" | "outline" {
+  if (status === "PASSED") return "default";
+  if (status === "QUEUED" || status === "RUNNING") return "secondary";
+  if (status === "FAILED" || status === "ERROR" || status === "TIMEOUT") return "destructive";
+  return "outline";
+}
+
 function getSubmissionStorageKey(slug: string): string {
   return `latest-submission:${slug}`;
 }
@@ -176,6 +185,13 @@ export default function ChallengeDetailPage() {
         : false,
   });
 
+  useEffect(() => {
+    const files = submissionQuery.data?.submission.files;
+    if (!files?.length) return;
+    setEditableFiles(files);
+    setSelectedPath((current) => current || files[0]?.path || "");
+  }, [submissionQuery.data]);
+
   const submissionLogsQuery = useQuery({
     queryKey: ["submission-logs", latestSubmissionId],
     queryFn: () => apiRequest<SubmissionLogsResponse>(`/submissions/${latestSubmissionId}/logs`, { token }),
@@ -216,7 +232,18 @@ export default function ChallengeDetailPage() {
   if (!token) return null;
 
   if (detailQuery.isLoading || starterQuery.isLoading) {
-    return <main className="p-6">Loading challenge...</main>;
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-4 p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Loading challenge...</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Fetching challenge details and starter files.</p>
+          </CardContent>
+        </Card>
+      </main>
+    );
   }
 
   if (detailQuery.isError || starterQuery.isError || !detailQuery.data) {
@@ -349,7 +376,10 @@ export default function ChallengeDetailPage() {
                 <strong>ID:</strong> {submissionQuery.data.submission.id}
               </div>
               <div className="text-sm">
-                <strong>Status:</strong> {submissionQuery.data.submission.status}
+                <strong>Status:</strong>{" "}
+                <Badge variant={submissionStatusVariant(submissionQuery.data.submission.status)}>
+                  {submissionQuery.data.submission.status}
+                </Badge>
               </div>
               <div className="text-sm">
                 <strong>Submitted:</strong> {new Date(submissionQuery.data.submission.submittedAt).toLocaleString()}

@@ -54,7 +54,15 @@ export default function ChallengesPage() {
   if (!token) return null;
 
   if (challengeQuery.isLoading) {
-    return <main className="p-6">Loading challenges...</main>;
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-4 p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Loading challenges...</CardTitle>
+          </CardHeader>
+        </Card>
+      </main>
+    );
   }
 
   if (challengeQuery.isError) {
@@ -76,6 +84,18 @@ export default function ChallengesPage() {
       </div>
 
       <div className="grid gap-4">
+        {!challengeQuery.data?.challenges.length ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>No challenges yet</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-muted-foreground">
+              <p>The catalog is empty. Seed challenge metadata from the repo, then refresh this page.</p>
+              <p>Run: <code className="rounded bg-muted px-1 py-0.5">npm run seed:challenges</code></p>
+            </CardContent>
+          </Card>
+        ) : null}
+
         {challengeQuery.data?.challenges.map((challenge) => (
           <Card key={challenge.id}>
             <CardHeader className="space-y-3">
