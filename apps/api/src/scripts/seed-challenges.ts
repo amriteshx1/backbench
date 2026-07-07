@@ -3,6 +3,7 @@ import { loadEnv } from "@backbench/config";
 import { prisma } from "@backbench/db";
 import { loadAllChallenges } from "@backbench/challenge-registry";
 import { resolveChallengesRoot } from "../lib/challenges-root.js";
+import { logger } from "../lib/logger.js";
 
 function toRelativePosixPath(basePath: string, targetPath: string): string {
   return path.relative(basePath, targetPath).replaceAll("\\", "/");
@@ -69,12 +70,14 @@ async function seed() {
     }
   }
 
-  console.log(`Seeded ${challengeDefinitions.length} challenges.`);
+  logger.info("challenges.seeded", { count: challengeDefinitions.length });
 }
 
 seed()
   .catch((error) => {
-    console.error("Failed to seed challenges:", error);
+    logger.error("challenges.seed_failed", {
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
     process.exitCode = 1;
   })
   .finally(async () => {

@@ -1,8 +1,10 @@
 import { spawn } from "node:child_process";
 import { resolveRunnerContextDir } from "../lib/paths.js";
+import { logger } from "../lib/logger.js";
 
 const RUNNER_IMAGE = "backbench-node-runner";
-const RUN_TIMEOUT_MS = 15_000;
+const MIN_TIMEOUT_MS = 5_000;
+const TIMEOUT_BUFFER_MS = 2_000;
 
 type CommandResult = {
   exitCode: number | null;
@@ -61,11 +63,29 @@ export async function ensureRunnerImage(): Promise<void> {
   );
 
   if (build.exitCode !== 0) {
+    logger.error("docker.runner_image_build_failed", {
+      exitCode: build.exitCode,
+      stderr: build.stderr,
+    });
     throw new Error(`Runner image build failed: ${build.stderr || build.stdout}`);
   }
+
+  logger.info("docker.runner_image_ready", { image: RUNNER_IMAGE });
 }
 
-export async function runDockerEvaluation(workspaceDir: string): Promise<CommandResult> {
+export async function runDockerEvaluation(
+  workspaceDir: string,
+  limits: { timeLimitMs: number; memoryLimitMb: number },
+): Promise<CommandResult> {
+  const timeoutMs = Math.max(limits.timeLimitMs + TIMEOUT_BUFFER_MS, MIN_TIMEOUT_MS);
+  const memoryLimit = `${limits.memoryLimitMb}m`;
+
+  logger.info("docker.evaluation_started", {
+    workspaceDir,
+    timeoutMs,
+    memoryLimit,
+  });
+
   const result = await runCommand(
     [
       "run",
@@ -75,7 +95,7 @@ export async function runDockerEvaluation(workspaceDir: string): Promise<Command
       "--cpus",
       "1",
       "--memory",
-      "512m",
+      memoryLimit,
       "--pids-limit",
       "128",
       "--workdir",
@@ -86,8 +106,13 @@ export async function runDockerEvaluation(workspaceDir: string): Promise<Command
       "node",
       "hidden-tests/evaluate.mjs",
     ],
-    { timeoutMs: RUN_TIMEOUT_MS },
+    { timeoutMs },
   );
+
+  logger.info("docker.evaluation_finished", {
+    exitCode: result.exitCode,
+    timedOut: result.timedOut,
+  });
 
   return result;
 }

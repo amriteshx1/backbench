@@ -12,6 +12,7 @@ import { ensureRunnerImage, runDockerEvaluation } from "./services/docker-runner
 import { collectLogs } from "./services/log-collector.js";
 import { parseEvaluationResultFromStdout } from "./services/result-parser.js";
 import { prepareWorkspaceForEvaluation } from "./services/template-resolver.js";
+import { logger } from "./lib/logger.js";
 
 const env = loadEnv();
 const redisUrl = new URL(env.REDIS_URL);
@@ -50,6 +51,8 @@ async function processSubmissionJob(payload: SubmissionEvaluationJobPayload) {
           slug: true,
           templateKey: true,
           testKey: true,
+          timeLimitMs: true,
+          memoryLimitMb: true,
         },
       },
     },
@@ -84,7 +87,15 @@ async function processSubmissionJob(payload: SubmissionEvaluationJobPayload) {
   });
 
   try {
-    const dockerResult = await runDockerEvaluation(workspace.workspaceDir);
+    logger.info("submission.evaluation_started", {
+      submissionId: submission.id,
+      challengeSlug: submission.challenge.slug,
+    });
+
+    const dockerResult = await runDockerEvaluation(workspace.workspaceDir, {
+      timeLimitMs: submission.challenge.timeLimitMs,
+      memoryLimitMb: submission.challenge.memoryLimitMb,
+    });
     const logs = collectLogs({
       stdout: dockerResult.stdout,
       stderr: dockerResult.stderr,
@@ -178,6 +189,14 @@ async function processSubmissionJob(payload: SubmissionEvaluationJobPayload) {
       challengeId: submission.challengeId,
       status: finalized.status,
     });
+
+    logger.info("submission.evaluation_completed", {
+      submissionId: submission.id,
+      status: finalized.status,
+      score: finalized.score,
+      passedTests: finalized.passedTests,
+      totalTests: finalized.totalTests,
+    });
   } finally {
     await workspace.cleanup();
   }
@@ -185,13 +204,20 @@ async function processSubmissionJob(payload: SubmissionEvaluationJobPayload) {
 
 export function startSubmissionWorker() {
   ensureRunnerImage().catch((error) => {
-    console.error("Failed to ensure runner image:", error);
+    logger.error("docker.runner_image_bootstrap_failed", {
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   });
 
   const worker = new Worker(
     SUBMISSION_EVALUATION_QUEUE,
     async (job) => {
       const payload = job.data as SubmissionEvaluationJobPayload;
+      logger.info("submission.job_received", {
+        jobId: job.id,
+        submissionId: payload.submissionId,
+        attemptNumber: payload.attemptNumber,
+      });
       await processSubmissionJob(payload);
     },
     {
@@ -207,11 +233,16 @@ export function startSubmissionWorker() {
   );
 
   worker.on("completed", (job) => {
-    console.log(`Submission worker completed job ${job.id}`);
+    logger.info("submission.job_completed", { jobId: job.id });
   });
 
   worker.on("failed", async (job, error) => {
-    console.error(`Submission worker failed job ${job?.id}:`, error);
+    logger.error("submission.job_failed", {
+      jobId: job?.id,
+      attemptsMade: job?.attemptsMade,
+      message: error.message,
+      submissionId: (job?.data as SubmissionEvaluationJobPayload | undefined)?.submissionId,
+    });
     const payload = job?.data as SubmissionEvaluationJobPayload | undefined;
     if (!payload?.submissionId) return;
 

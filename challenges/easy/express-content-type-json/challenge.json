@@ -1,0 +1,16 @@
+{
+  "slug": "express-content-type-json",
+  "title": "Reject Non-JSON Content-Type",
+  "difficulty": "easy",
+  "category": "middleware",
+  "description": "Middleware that returns 415 for non-application/json POST bodies.",
+  "tags": [
+    "middleware",
+    "validation"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 15
+}
