@@ -2,6 +2,7 @@ import { readStarterFiles } from "@backbench/challenge-registry";
 import type {
   CreateSubmissionRequest,
   CreateSubmissionResponse,
+  SubmissionRealtimeEvent,
   SubmissionDetailResponse,
   SubmissionLogsResponse,
 } from "@backbench/shared";
@@ -12,6 +13,7 @@ import {
 } from "../../lib/challenges-root.js";
 import { queueProducer } from "./queue-producer.js";
 import { submissionsRepository } from "./repository.js";
+import { emitSubmissionRealtimeEvent } from "../realtime/service.js";
 
 const DISALLOWED_SEGMENTS = ["..", ""];
 
@@ -59,6 +61,19 @@ export const submissionsService = {
       files: input.files,
     });
 
+    const baseEvent: Omit<SubmissionRealtimeEvent, "event"> = {
+      submissionId: submission.id,
+      userId: submission.userId,
+      challengeId: submission.challengeId,
+      timestamp: new Date().toISOString(),
+    };
+
+    emitSubmissionRealtimeEvent({
+      ...baseEvent,
+      event: "submission.created",
+      status: submission.status,
+    });
+
     let resultingStatus = submission.status;
 
     try {
@@ -68,6 +83,12 @@ export const submissionsService = {
         challengeId: submission.challengeId,
         attemptNumber: 1,
       });
+
+      emitSubmissionRealtimeEvent({
+        ...baseEvent,
+        event: "submission.queued",
+        status: "QUEUED",
+      });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to enqueue submission";
@@ -76,6 +97,12 @@ export const submissionsService = {
         message,
       );
       resultingStatus = "ERROR";
+
+      emitSubmissionRealtimeEvent({
+        ...baseEvent,
+        event: "submission.completed",
+        status: "ERROR",
+      });
     }
 
     return {
