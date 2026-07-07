@@ -1,8 +1,11 @@
 import { Worker } from "bullmq";
+import { Redis } from "ioredis";
 import { loadEnv } from "@backbench/config";
 import { Prisma, prisma, SubmissionStatus } from "@backbench/db";
 import {
+  SUBMISSION_EVENTS_CHANNEL,
   SUBMISSION_EVALUATION_QUEUE,
+  type SubmissionRealtimeEvent,
   type SubmissionEvaluationJobPayload,
 } from "@backbench/shared";
 import { ensureRunnerImage, runDockerEvaluation } from "./services/docker-runner.js";
@@ -12,6 +15,23 @@ import { prepareWorkspaceForEvaluation } from "./services/template-resolver.js";
 
 const env = loadEnv();
 const redisUrl = new URL(env.REDIS_URL);
+const eventPublisher = new Redis({
+  host: redisUrl.hostname,
+  port: Number(redisUrl.port || "6379"),
+  username: redisUrl.username || undefined,
+  password: redisUrl.password || undefined,
+  maxRetriesPerRequest: null,
+});
+
+async function publishSubmissionEvent(
+  event: Omit<SubmissionRealtimeEvent, "timestamp">,
+) {
+  const payload: SubmissionRealtimeEvent = {
+    ...event,
+    timestamp: new Date().toISOString(),
+  };
+  await eventPublisher.publish(SUBMISSION_EVENTS_CHANNEL, JSON.stringify(payload));
+}
 
 async function processSubmissionJob(payload: SubmissionEvaluationJobPayload) {
   const submission = await prisma.submission.findUnique({
@@ -47,6 +67,14 @@ async function processSubmissionJob(payload: SubmissionEvaluationJobPayload) {
       errorType: null,
       errorMessage: null,
     },
+  });
+
+  await publishSubmissionEvent({
+    event: "submission.started",
+    submissionId: submission.id,
+    userId: submission.userId,
+    challengeId: submission.challengeId,
+    status: "RUNNING",
   });
 
   const workspace = await prepareWorkspaceForEvaluation({
@@ -142,6 +170,14 @@ async function processSubmissionJob(payload: SubmissionEvaluationJobPayload) {
         },
       });
     });
+
+    await publishSubmissionEvent({
+      event: "submission.completed",
+      submissionId: submission.id,
+      userId: submission.userId,
+      challengeId: submission.challengeId,
+      status: finalized.status,
+    });
   } finally {
     await workspace.cleanup();
   }
@@ -187,6 +223,14 @@ export function startSubmissionWorker() {
         errorMessage: error.message,
         completedAt: new Date(),
       },
+    });
+
+    await publishSubmissionEvent({
+      event: "submission.completed",
+      submissionId: payload.submissionId,
+      userId: payload.userId,
+      challengeId: payload.challengeId,
+      status: "ERROR",
     });
   });
 
