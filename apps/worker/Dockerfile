@@ -2,6 +2,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache docker-cli
+
 COPY package*.json ./
 COPY tsconfig.json ./
 
@@ -17,6 +19,8 @@ RUN npm ci
 COPY packages/config ./packages/config
 COPY packages/shared ./packages/shared
 COPY packages/db ./packages/db
+COPY challenges ./challenges
+COPY docker/runner-images ./docker/runner-images
 COPY apps/worker ./apps/worker
 
 RUN npm run build -w @backbench/config || true
