@@ -69,6 +69,15 @@ type SubmissionDetailResponse = {
   };
 };
 
+type SubmissionLogsResponse = {
+  submissionId: string;
+  stdout: string | null;
+  stderr: string | null;
+  testResultsJson: unknown | null;
+  durationMs: number | null;
+  memoryMb: number | null;
+};
+
 function difficultyVariant(difficulty: ChallengeSummary["difficulty"]) {
   if (difficulty === "easy") return "secondary";
   if (difficulty === "medium") return "default";
@@ -150,6 +159,18 @@ export default function ChallengeDetailPage() {
       query.state.data?.submission.status === "QUEUED" || query.state.data?.submission.status === "RUNNING"
         ? 3000
         : false,
+  });
+
+  const submissionLogsQuery = useQuery({
+    queryKey: ["submission-logs", latestSubmissionId],
+    queryFn: () => apiRequest<SubmissionLogsResponse>(`/submissions/${latestSubmissionId}/logs`, { token }),
+    enabled: Boolean(token && latestSubmissionId),
+    refetchInterval: (query) =>
+      submissionQuery.data?.submission.status === "QUEUED" || submissionQuery.data?.submission.status === "RUNNING"
+        ? 3000
+        : query.state.data
+          ? false
+          : 3000,
   });
 
   if (!token) return null;
@@ -293,9 +314,42 @@ export default function ChallengeDetailPage() {
               <div className="text-sm">
                 <strong>Submitted:</strong> {new Date(submissionQuery.data.submission.submittedAt).toLocaleString()}
               </div>
+              <div className="text-sm">
+                <strong>Score:</strong> {submissionQuery.data.submission.score ?? "-"}
+              </div>
+              <div className="text-sm">
+                <strong>Tests:</strong> {submissionQuery.data.submission.passedTests ?? "-"} /{" "}
+                {submissionQuery.data.submission.totalTests ?? "-"}
+              </div>
               {submissionQuery.data.submission.errorMessage ? (
                 <div className="text-sm text-destructive">
                   <strong>Error:</strong> {submissionQuery.data.submission.errorMessage}
+                </div>
+              ) : null}
+              {submissionLogsQuery.data?.durationMs !== null && submissionLogsQuery.data?.durationMs !== undefined ? (
+                <div className="text-sm">
+                  <strong>Duration:</strong> {submissionLogsQuery.data.durationMs} ms
+                </div>
+              ) : null}
+              {submissionLogsQuery.data?.memoryMb !== null && submissionLogsQuery.data?.memoryMb !== undefined ? (
+                <div className="text-sm">
+                  <strong>Memory:</strong> {submissionLogsQuery.data.memoryMb} MB
+                </div>
+              ) : null}
+              {submissionLogsQuery.data?.stdout ? (
+                <div className="space-y-1">
+                  <div className="text-xs font-semibold">stdout</div>
+                  <pre className="max-h-48 overflow-auto rounded-md border bg-muted p-2 text-xs">
+                    {submissionLogsQuery.data.stdout}
+                  </pre>
+                </div>
+              ) : null}
+              {submissionLogsQuery.data?.stderr ? (
+                <div className="space-y-1">
+                  <div className="text-xs font-semibold">stderr</div>
+                  <pre className="max-h-48 overflow-auto rounded-md border bg-muted p-2 text-xs">
+                    {submissionLogsQuery.data.stderr}
+                  </pre>
                 </div>
               ) : null}
             </>
