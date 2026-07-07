@@ -1,0 +1,16 @@
+{
+  "slug": "webhook-retry-delivery",
+  "title": "Webhook Delivery With Retries",
+  "difficulty": "hard",
+  "category": "integrations",
+  "description": "Deliver webhooks with retry schedule and delivery log.",
+  "tags": [
+    "webhooks",
+    "retry"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 43
+}

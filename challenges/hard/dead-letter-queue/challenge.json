@@ -1,0 +1,16 @@
+{
+  "slug": "dead-letter-queue",
+  "title": "Dead Letter Queue Handler",
+  "difficulty": "hard",
+  "category": "queues",
+  "description": "Move failed jobs to DLQ after max retries.",
+  "tags": [
+    "queues",
+    "dlq"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 36
+}

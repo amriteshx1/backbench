@@ -1,0 +1,16 @@
+{
+  "slug": "multi-tenant-isolation",
+  "title": "Multi-Tenant Data Isolation",
+  "difficulty": "hard",
+  "category": "architecture",
+  "description": "Scope all queries by tenantId from request context.",
+  "tags": [
+    "multi-tenant",
+    "security"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 37
+}

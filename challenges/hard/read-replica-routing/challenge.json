@@ -1,0 +1,16 @@
+{
+  "slug": "read-replica-routing",
+  "title": "Read/Write Query Routing",
+  "difficulty": "hard",
+  "category": "database",
+  "description": "Route SELECT to replica, writes to primary.",
+  "tags": [
+    "database",
+    "replication"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 40
+}

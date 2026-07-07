@@ -1,0 +1,16 @@
+{
+  "slug": "event-store-lite",
+  "title": "Append-Only Event Store",
+  "difficulty": "hard",
+  "category": "event-sourcing",
+  "description": "Append events and rebuild aggregate state from stream.",
+  "tags": [
+    "event-sourcing",
+    "cqrs"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 38
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "cache-aside",
+  "title": "Cache-Aside Pattern",
+  "difficulty": "hard",
+  "category": "caching",
+  "description": "Read through cache with loader fallback and cache populate.",
+  "tags": [
+    "caching",
+    "patterns"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 41
+}

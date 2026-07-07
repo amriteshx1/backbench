@@ -1,0 +1,16 @@
+{
+  "slug": "conflict-resolution",
+  "title": "Last-Write-Wins Conflict Resolution",
+  "difficulty": "hard",
+  "category": "distributed-systems",
+  "description": "Merge concurrent document updates using updatedAt timestamp.",
+  "tags": [
+    "crdt",
+    "sync"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 44
+}

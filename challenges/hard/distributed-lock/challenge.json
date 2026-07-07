@@ -1,0 +1,16 @@
+{
+  "slug": "distributed-lock",
+  "title": "Redis-Style Distributed Lock",
+  "difficulty": "hard",
+  "category": "distributed-systems",
+  "description": "Implement acquire/release lock with TTL using in-memory simulation.",
+  "tags": [
+    "locks",
+    "redis"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 31
+}

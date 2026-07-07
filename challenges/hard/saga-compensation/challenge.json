@@ -1,0 +1,16 @@
+{
+  "slug": "saga-compensation",
+  "title": "Saga With Compensation",
+  "difficulty": "hard",
+  "category": "distributed-systems",
+  "description": "Run multi-step saga and compensate on step failure.",
+  "tags": [
+    "saga",
+    "transactions"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 32
+}

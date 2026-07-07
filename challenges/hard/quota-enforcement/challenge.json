@@ -1,0 +1,16 @@
+{
+  "slug": "quota-enforcement",
+  "title": "API Quota Enforcement",
+  "difficulty": "hard",
+  "category": "api-design",
+  "description": "Track daily usage per API key and block when quota exceeded.",
+  "tags": [
+    "quota",
+    "billing"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 768,
+  "status": "published",
+  "orderIndex": 45
+}

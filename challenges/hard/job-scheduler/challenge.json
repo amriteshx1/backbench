@@ -1,0 +1,16 @@
+{
+  "slug": "job-scheduler",
+  "title": "Delayed Job Scheduler",
+  "difficulty": "hard",
+  "category": "queues",
+  "description": "Schedule jobs to run after delay using in-memory timer queue.",
+  "tags": [
+    "scheduler",
+    "queues"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 42
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "circuit-breaker",
+  "title": "Circuit Breaker Pattern",
+  "difficulty": "hard",
+  "category": "resilience",
+  "description": "Open circuit after failure threshold, half-open probe, then close.",
+  "tags": [
+    "resilience",
+    "circuit-breaker"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 33
+}

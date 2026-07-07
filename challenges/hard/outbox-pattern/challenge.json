@@ -1,0 +1,16 @@
+{
+  "slug": "outbox-pattern",
+  "title": "Transactional Outbox",
+  "difficulty": "hard",
+  "category": "distributed-systems",
+  "description": "Write domain event to outbox table in same transaction as entity.",
+  "tags": [
+    "outbox",
+    "events"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 34
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "transaction-boundary",
+  "title": "Simulated DB Transaction",
+  "difficulty": "hard",
+  "category": "database",
+  "description": "Run operations in transaction scope with rollback on error.",
+  "tags": [
+    "transactions",
+    "database"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 5000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 39
+}
