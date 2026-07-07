@@ -1,61 +1,17 @@
 import { Worker } from "bullmq";
 import { loadEnv } from "@backbench/config";
-import { prisma, SubmissionStatus } from "@backbench/db";
+import { Prisma, prisma, SubmissionStatus } from "@backbench/db";
 import {
   SUBMISSION_EVALUATION_QUEUE,
   type SubmissionEvaluationJobPayload,
 } from "@backbench/shared";
+import { ensureRunnerImage, runDockerEvaluation } from "./services/docker-runner.js";
+import { collectLogs } from "./services/log-collector.js";
+import { parseEvaluationResultFromStdout } from "./services/result-parser.js";
+import { prepareWorkspaceForEvaluation } from "./services/template-resolver.js";
 
 const env = loadEnv();
 const redisUrl = new URL(env.REDIS_URL);
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
-
-function evaluateSubmissionDeterministically(files: Array<{ path: string; content: string }>) {
-  const hasTodoMarker = files.some((file) =>
-    file.content.toLowerCase().includes("todo"),
-  );
-
-  if (hasTodoMarker) {
-    return {
-      status: SubmissionStatus.FAILED,
-      score: 20,
-      passedTests: 1,
-      totalTests: 5,
-      stdout: `[${nowIso()}] Placeholder worker run completed with TODO markers detected.`,
-      stderr: "Found TODO marker in submitted files.",
-      errorType: "ASSERTION_FAILED",
-      errorMessage: "Submission still contains TODO markers.",
-      testResultsJson: {
-        total: 5,
-        passed: 1,
-        failed: 4,
-      },
-      durationMs: 120,
-      memoryMb: 32,
-    };
-  }
-
-  return {
-    status: SubmissionStatus.PASSED,
-    score: 100,
-    passedTests: 5,
-    totalTests: 5,
-    stdout: `[${nowIso()}] Placeholder worker run completed successfully.`,
-    stderr: null as string | null,
-    errorType: null as string | null,
-    errorMessage: null as string | null,
-    testResultsJson: {
-      total: 5,
-      passed: 5,
-      failed: 0,
-    },
-    durationMs: 95,
-    memoryMb: 28,
-  };
-}
 
 async function processSubmissionJob(payload: SubmissionEvaluationJobPayload) {
   const submission = await prisma.submission.findUnique({
@@ -72,6 +28,8 @@ async function processSubmissionJob(payload: SubmissionEvaluationJobPayload) {
         select: {
           id: true,
           slug: true,
+          templateKey: true,
+          testKey: true,
         },
       },
     },
@@ -91,44 +49,109 @@ async function processSubmissionJob(payload: SubmissionEvaluationJobPayload) {
     },
   });
 
-  const result = evaluateSubmissionDeterministically(submission.files);
-
-  await prisma.$transaction(async (tx) => {
-    await tx.submission.update({
-      where: { id: submission.id },
-      data: {
-        status: result.status,
-        score: result.score,
-        passedTests: result.passedTests,
-        totalTests: result.totalTests,
-        errorType: result.errorType,
-        errorMessage: result.errorMessage,
-        completedAt: new Date(),
-      },
-    });
-
-    await tx.submissionResult.upsert({
-      where: { submissionId: submission.id },
-      update: {
-        stdout: result.stdout,
-        stderr: result.stderr,
-        testResultsJson: result.testResultsJson,
-        durationMs: result.durationMs,
-        memoryMb: result.memoryMb,
-      },
-      create: {
-        submissionId: submission.id,
-        stdout: result.stdout,
-        stderr: result.stderr,
-        testResultsJson: result.testResultsJson,
-        durationMs: result.durationMs,
-        memoryMb: result.memoryMb,
-      },
-    });
+  const workspace = await prepareWorkspaceForEvaluation({
+    submission,
+    challenge: submission.challenge,
+    files: submission.files,
   });
+
+  try {
+    const dockerResult = await runDockerEvaluation(workspace.workspaceDir);
+    const logs = collectLogs({
+      stdout: dockerResult.stdout,
+      stderr: dockerResult.stderr,
+    });
+
+    const parsed = parseEvaluationResultFromStdout(logs.stdout);
+    const timedOut = dockerResult.timedOut;
+
+    const finalized =
+      timedOut
+        ? {
+            status: SubmissionStatus.TIMEOUT,
+            score: 0,
+            passedTests: 0,
+            totalTests: 0,
+            errorType: "EXECUTION_TIMEOUT",
+            errorMessage: "Execution exceeded worker timeout.",
+            testResultsJson: null,
+            durationMs: null,
+            memoryMb: null,
+          }
+        : parsed
+          ? parsed
+          : dockerResult.exitCode === 0
+            ? {
+                status: SubmissionStatus.ERROR,
+                score: 0,
+                passedTests: 0,
+                totalTests: 0,
+                errorType: "RESULT_PARSE_ERROR",
+                errorMessage: "Could not parse hidden-test result payload.",
+                testResultsJson: null,
+                durationMs: null,
+                memoryMb: null,
+              }
+            : {
+                status: SubmissionStatus.ERROR,
+                score: 0,
+                passedTests: 0,
+                totalTests: 0,
+                errorType: "DOCKER_EXECUTION_FAILED",
+                errorMessage: logs.stderr || "Docker execution failed.",
+                testResultsJson: null,
+                durationMs: null,
+                memoryMb: null,
+              };
+
+    const testResultsJsonValue =
+      finalized.testResultsJson === null
+        ? Prisma.JsonNull
+        : (finalized.testResultsJson as Prisma.InputJsonValue);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.submission.update({
+        where: { id: submission.id },
+        data: {
+          status: finalized.status,
+          score: finalized.score,
+          passedTests: finalized.passedTests,
+          totalTests: finalized.totalTests,
+          errorType: finalized.errorType,
+          errorMessage: finalized.errorMessage,
+          completedAt: new Date(),
+        },
+      });
+
+      await tx.submissionResult.upsert({
+        where: { submissionId: submission.id },
+        update: {
+          stdout: logs.stdout,
+          stderr: logs.stderr,
+          testResultsJson: testResultsJsonValue,
+          durationMs: finalized.durationMs,
+          memoryMb: finalized.memoryMb,
+        },
+        create: {
+          submissionId: submission.id,
+          stdout: logs.stdout,
+          stderr: logs.stderr,
+          testResultsJson: testResultsJsonValue,
+          durationMs: finalized.durationMs,
+          memoryMb: finalized.memoryMb,
+        },
+      });
+    });
+  } finally {
+    await workspace.cleanup();
+  }
 }
 
 export function startSubmissionWorker() {
+  ensureRunnerImage().catch((error) => {
+    console.error("Failed to ensure runner image:", error);
+  });
+
   const worker = new Worker(
     SUBMISSION_EVALUATION_QUEUE,
     async (job) => {
