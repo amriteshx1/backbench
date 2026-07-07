@@ -16,7 +16,8 @@
     "db:generate": "npm run prisma:generate -w packages/db",
     "db:migrate": "npm run prisma:migrate -w packages/db",
     "db:studio": "npm run prisma:studio -w packages/db",
-    "seed:challenges": "npm run seed:challenges -w @backbench/api"
+    "seed:challenges": "npm run seed:challenges -w @backbench/api",
+    "generate:challenges": "node scripts/generate-challenge-catalog.mjs"
   },
   "devDependencies": {
     "@types/node": "^22",
