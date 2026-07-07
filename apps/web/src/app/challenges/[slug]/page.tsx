@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
 import { getToken } from "@/lib/auth";
+import { connectRealtime } from "@/lib/realtime";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,6 +79,19 @@ type SubmissionLogsResponse = {
   memoryMb: number | null;
 };
 
+type RealtimeSubmissionEvent = {
+  event:
+    | "submission.created"
+    | "submission.queued"
+    | "submission.started"
+    | "submission.completed";
+  submissionId: string;
+  userId: string;
+  challengeId: string;
+  status?: string;
+  timestamp: string;
+};
+
 function difficultyVariant(difficulty: ChallengeSummary["difficulty"]) {
   if (difficulty === "easy") return "secondary";
   if (difficulty === "medium") return "default";
@@ -91,6 +105,7 @@ function getSubmissionStorageKey(slug: string): string {
 export default function ChallengeDetailPage() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const token = getToken();
   const slug = params.slug;
   const [editableFiles, setEditableFiles] = useState<Array<{ path: string; content: string }>>([]);
@@ -172,6 +187,31 @@ export default function ChallengeDetailPage() {
           ? false
           : 3000,
   });
+
+  useEffect(() => {
+    if (!token) return;
+    const socket = connectRealtime(token);
+
+    const handleRealtimeEvent = (event: RealtimeSubmissionEvent) => {
+      if (latestSubmissionId && event.submissionId === latestSubmissionId) {
+        queryClient.invalidateQueries({ queryKey: ["submission", latestSubmissionId] });
+        queryClient.invalidateQueries({ queryKey: ["submission-logs", latestSubmissionId] });
+      }
+    };
+
+    socket.on("submission.started", handleRealtimeEvent);
+    socket.on("submission.completed", handleRealtimeEvent);
+    socket.on("submission.queued", handleRealtimeEvent);
+    socket.on("submission.created", handleRealtimeEvent);
+
+    return () => {
+      socket.off("submission.started", handleRealtimeEvent);
+      socket.off("submission.completed", handleRealtimeEvent);
+      socket.off("submission.queued", handleRealtimeEvent);
+      socket.off("submission.created", handleRealtimeEvent);
+      socket.disconnect();
+    };
+  }, [token, latestSubmissionId, queryClient]);
 
   if (!token) return null;
 
