@@ -1,0 +1,16 @@
+{
+  "slug": "optimistic-locking",
+  "title": "Optimistic Concurrency Control",
+  "difficulty": "medium",
+  "category": "database",
+  "description": "Reject updates when version header does not match current version.",
+  "tags": [
+    "concurrency",
+    "database"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 29
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "request-validation-schema",
+  "title": "Schema-Based Request Validation",
+  "difficulty": "medium",
+  "category": "validation",
+  "description": "Validate request body fields with explicit schema checks.",
+  "tags": [
+    "validation",
+    "zod-like"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 26
+}

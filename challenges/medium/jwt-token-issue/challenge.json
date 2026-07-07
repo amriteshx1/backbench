@@ -1,0 +1,16 @@
+{
+  "slug": "jwt-token-issue",
+  "title": "Issue JWT Access Tokens",
+  "difficulty": "medium",
+  "category": "auth",
+  "description": "Sign JWT tokens with expiry on successful login.",
+  "tags": [
+    "jwt",
+    "auth"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 16
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "audit-log-middleware",
+  "title": "Audit Log Middleware",
+  "difficulty": "medium",
+  "category": "observability",
+  "description": "Log mutating requests with userId, method, path, and timestamp.",
+  "tags": [
+    "logging",
+    "audit"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 30
+}

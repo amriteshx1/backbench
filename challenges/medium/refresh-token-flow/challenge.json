@@ -1,0 +1,16 @@
+{
+  "slug": "refresh-token-flow",
+  "title": "Refresh Token Rotation",
+  "difficulty": "medium",
+  "category": "auth",
+  "description": "Issue new access+refresh token pair and invalidate old refresh token.",
+  "tags": [
+    "auth",
+    "tokens"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 24
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "api-key-auth",
+  "title": "API Key Authentication",
+  "difficulty": "medium",
+  "category": "auth",
+  "description": "Validate X-API-Key header against allowed keys set.",
+  "tags": [
+    "auth",
+    "api-keys"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 25
+}

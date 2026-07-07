@@ -1,0 +1,16 @@
+{
+  "slug": "cursor-pagination",
+  "title": "Cursor-Based Pagination",
+  "difficulty": "medium",
+  "category": "api-design",
+  "description": "Paginate feed using opaque cursor tokens instead of page numbers.",
+  "tags": [
+    "pagination",
+    "api-design"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 27
+}

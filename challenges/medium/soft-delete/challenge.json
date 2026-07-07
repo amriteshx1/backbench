@@ -1,0 +1,16 @@
+{
+  "slug": "soft-delete",
+  "title": "Soft Delete Pattern",
+  "difficulty": "medium",
+  "category": "database",
+  "description": "Mark records deletedAt instead of removing from store.",
+  "tags": [
+    "database",
+    "crud"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 22
+}

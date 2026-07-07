@@ -1,0 +1,16 @@
+{
+  "slug": "jwt-token-verify",
+  "title": "Verify JWT Middleware",
+  "difficulty": "medium",
+  "category": "auth",
+  "description": "Middleware that verifies Bearer tokens and attaches userId.",
+  "tags": [
+    "jwt",
+    "middleware"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 17
+}

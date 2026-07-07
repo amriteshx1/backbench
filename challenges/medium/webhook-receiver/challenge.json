@@ -1,0 +1,16 @@
+{
+  "slug": "webhook-receiver",
+  "title": "Webhook Signature Verification",
+  "difficulty": "medium",
+  "category": "integrations",
+  "description": "Verify HMAC signature on incoming webhook payloads.",
+  "tags": [
+    "webhooks",
+    "security"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 21
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "bulk-create",
+  "title": "Bulk Create Endpoint",
+  "difficulty": "medium",
+  "category": "express-api",
+  "description": "Accept array of items and validate each before insert.",
+  "tags": [
+    "express",
+    "bulk"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 28
+}

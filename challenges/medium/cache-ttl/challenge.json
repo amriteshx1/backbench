@@ -1,0 +1,16 @@
+{
+  "slug": "cache-ttl",
+  "title": "TTL In-Memory Cache",
+  "difficulty": "medium",
+  "category": "caching",
+  "description": "Implement get/set cache with TTL expiry.",
+  "tags": [
+    "caching",
+    "performance"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 3000,
+  "memoryLimitMb": 512,
+  "status": "published",
+  "orderIndex": 19
+}
