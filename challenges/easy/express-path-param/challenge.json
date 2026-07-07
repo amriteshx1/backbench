@@ -1,0 +1,16 @@
+{
+  "slug": "express-path-param",
+  "title": "Fetch Resource By Path Parameter",
+  "difficulty": "easy",
+  "category": "express-api",
+  "description": "Implement GET /users/:id returning 404 when user not found.",
+  "tags": [
+    "express",
+    "routing"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 5
+}

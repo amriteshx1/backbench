@@ -1,0 +1,16 @@
+{
+  "slug": "express-list-pagination",
+  "title": "Paginate List Results",
+  "difficulty": "easy",
+  "category": "express-api",
+  "description": "Implement GET /posts?page=&limit= with slice-based pagination.",
+  "tags": [
+    "express",
+    "pagination"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 8
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "express-health-check",
+  "title": "Add Health Check Endpoint",
+  "difficulty": "easy",
+  "category": "express-api",
+  "description": "Implement GET /health returning service status JSON.",
+  "tags": [
+    "express",
+    "observability"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 3
+}

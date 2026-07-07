@@ -1,0 +1,16 @@
+{
+  "slug": "express-update-resource",
+  "title": "Partial Update Endpoint",
+  "difficulty": "easy",
+  "category": "express-api",
+  "description": "Implement PATCH /products/:id for partial updates.",
+  "tags": [
+    "express",
+    "crud"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 7
+}

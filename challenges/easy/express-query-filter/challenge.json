@@ -1,0 +1,16 @@
+{
+  "slug": "express-query-filter",
+  "title": "Filter Items By Query Parameter",
+  "difficulty": "easy",
+  "category": "express-api",
+  "description": "Implement GET /items?category= filtering on an in-memory list.",
+  "tags": [
+    "express",
+    "query-params"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 4
+}

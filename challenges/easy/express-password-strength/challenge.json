@@ -1,0 +1,16 @@
+{
+  "slug": "express-password-strength",
+  "title": "Enforce Minimum Password Length",
+  "difficulty": "easy",
+  "category": "validation",
+  "description": "Reject passwords shorter than 8 characters on registration.",
+  "tags": [
+    "validation",
+    "security"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 10
+}

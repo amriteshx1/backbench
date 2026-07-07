@@ -1,0 +1,16 @@
+{
+  "slug": "express-email-validation",
+  "title": "Validate Email Format",
+  "difficulty": "easy",
+  "category": "validation",
+  "description": "Return 400 when email format is invalid on POST /contacts.",
+  "tags": [
+    "validation",
+    "express"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 9
+}

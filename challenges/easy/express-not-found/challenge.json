@@ -1,0 +1,16 @@
+{
+  "slug": "express-not-found",
+  "title": "Global 404 Handler",
+  "difficulty": "easy",
+  "category": "error-handling",
+  "description": "Add catch-all middleware returning JSON 404 for unknown routes.",
+  "tags": [
+    "express",
+    "error-handling"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 13
+}

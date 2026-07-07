@@ -1,0 +1,17 @@
+{
+  "slug": "express-user-login",
+  "title": "Build User Login Endpoint",
+  "difficulty": "easy",
+  "category": "express-api",
+  "description": "Implement POST /auth/login with credential validation and 401 on failure.",
+  "tags": [
+    "express",
+    "auth",
+    "http"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 2
+}
