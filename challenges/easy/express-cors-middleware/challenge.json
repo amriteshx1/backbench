@@ -1,0 +1,16 @@
+{
+  "slug": "express-cors-middleware",
+  "title": "Basic CORS Middleware",
+  "difficulty": "easy",
+  "category": "middleware",
+  "description": "Allow cross-origin requests with Access-Control-Allow-Origin header.",
+  "tags": [
+    "middleware",
+    "cors"
+  ],
+  "maxScore": 100,
+  "timeLimitMs": 2000,
+  "memoryLimitMb": 256,
+  "status": "published",
+  "orderIndex": 12
+}
