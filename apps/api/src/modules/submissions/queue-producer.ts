@@ -1,9 +1,10 @@
 import type { SubmissionEvaluationJobPayload } from "@backbench/shared";
 import { submissionEvaluationQueue } from "../../lib/queue.js";
+import { logger } from "../../lib/logger.js";
 
 export const queueProducer = {
   async enqueueSubmissionEvaluation(payload: SubmissionEvaluationJobPayload) {
-    await submissionEvaluationQueue.add("evaluate-submission", payload, {
+    const job = await submissionEvaluationQueue.add("evaluate-submission", payload, {
       attempts: 2,
       backoff: {
         type: "exponential",
@@ -11,6 +12,12 @@ export const queueProducer = {
       },
       removeOnComplete: 200,
       removeOnFail: 1000,
+    });
+
+    logger.info("queue.submission_enqueued", {
+      jobId: job.id,
+      submissionId: payload.submissionId,
+      challengeId: payload.challengeId,
     });
   },
 };

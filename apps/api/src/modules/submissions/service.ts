@@ -14,6 +14,7 @@ import {
 import { queueProducer } from "./queue-producer.js";
 import { submissionsRepository } from "./repository.js";
 import { emitSubmissionRealtimeEvent } from "../realtime/service.js";
+import { logger } from "../../lib/logger.js";
 
 const DISALLOWED_SEGMENTS = ["..", ""];
 
@@ -92,6 +93,10 @@ export const submissionsService = {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to enqueue submission";
+      logger.error("queue.submission_enqueue_failed", {
+        submissionId: submission.id,
+        message,
+      });
       await submissionsRepository.markSubmissionErrorForQueueFailure(
         submission.id,
         message,
