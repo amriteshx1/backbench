@@ -1,8 +1,8 @@
 import app from "./app.js";
 import { createServer } from "node:http";
 import { loadEnv } from "@backbench/config";
-import { initializeRealtimeServer } from "./modules/realtime/service.js";
-import { startWorkerEventsSubscriber } from "./modules/realtime/worker-events-subscriber.js";
+import { initializeRealtimeServer } from "./services/realtime.service.js";
+import { startWorkerEventsSubscriber } from "./services/worker-events-subscriber.js";
 import { logger } from "./lib/logger.js";
 
 const env = loadEnv();
