@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
 import healthRoutes from "./routes/health.routes.js";
-import authRoutes from "./modules/auth/routes.js";
-import meRoutes from "./modules/users/routes.js";
-import challengeRoutes from "./modules/challenges/routes.js";
-import submissionRoutes from "./modules/submissions/routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import meRoutes from "./routes/users.routes.js";
+import challengeRoutes from "./routes/challenges.routes.js";
+import submissionRoutes from "./routes/submissions.routes.js";
 import { AppError } from "./lib/app-error.js";
 import { logger } from "./lib/logger.js";
 
