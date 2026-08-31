@@ -1,6 +1,6 @@
 import { loadEnv } from "@backbench/config";
 import { startHealthServer } from "./health-server.js";
-import { startSubmissionWorker } from "./submission-worker.js";
+import { startSubmissionWorker } from "./worker/submission-worker.js";
 import { logger } from "./lib/logger.js";
 
 const env = loadEnv();
